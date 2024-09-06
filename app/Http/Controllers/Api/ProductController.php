@@ -5,51 +5,27 @@ namespace App\Http\Controllers\Api;
 use App\Filters\ProductPropertyFilter;
 use App\Http\Controllers\Controller;
 use App\Models\Product;
+use App\Services\ProductFilterService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 
 class ProductController extends Controller
 {
-    public function index(Request $request)
+
+
+    public function __construct(ProductFilterService $productFilterService)
+    {
+        $this->productFilterService = $productFilterService;
+    }
+
+    public function index(Request $request): JsonResponse
     {
         $filters = $request->get('properties', []);
-        $products = Product::with('properties')
-            ->filterByProperties($filters)
-            ->paginate(40);
+        $products = $this->productFilterService->filter($filters);
 
         return response()->json($products);
     }
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    //Попытка реализации фильтра средствами библиотеки Spatie
-
-//    public function index()    {
-//
-//        $products = QueryBuilder::for(Product::class)
-//            ->allowedFilters([
-//
-//                AllowedFilter::custom('properties', new ProductPropertyFilter()),
-//            ])
-//            ->get();
-//
-//        return response()->json($products);
-//
-//    }

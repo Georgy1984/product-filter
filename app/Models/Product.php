@@ -10,13 +10,15 @@ class Product extends Model
 {
     use HasFactory;
 
-    public function properties() {
+    public function properties()
+    {
         return $this->belongsToMany(Property::class, 'product_property')->withPivot('value');
     }
 
 
     public function scopeFilterByProperties($query, $filters)
     {
+
         foreach ($filters as $property => $values) {
             $query->whereHas('properties', function ($query) use ($property, $values) {
                 $query->where('properties.name', $property)
