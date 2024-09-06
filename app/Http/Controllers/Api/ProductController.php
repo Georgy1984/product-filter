@@ -13,17 +13,11 @@ class ProductController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Product::query();
+        $filters = $request->get('properties', []);
+        $products = Product::with('properties')
+            ->filterByProperties($filters)
+            ->paginate(40);
 
-        if ($request->has('properties')) {
-            foreach ($request->get('properties') as $property => $values) {
-                $query->whereHas('properties', function ($q) use ($property, $values) {
-                    $q->where('name', $property)->whereIn('value', $values);
-                });
-            }
-        }
-
-        $products = $query->paginate(40);
         return response()->json($products);
     }
 
